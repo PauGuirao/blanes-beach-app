@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import { useEffect, useState } from 'react';
-import { FlatList, Image, StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ProfileScreen() {
@@ -42,14 +42,6 @@ export default function ProfileScreen() {
     count: visits.filter((v) => v.beach === beach).length,
   }));
 
-  const BEACH_COUNTRIES: Record<string, string> = {
-    'Platja de Blanes': 'ES',
-    'Cala Sant Francesc': 'ES',
-    'Cala Treumal': 'ES',
-    'S\u2019Abanell': 'ES',
-    'Platja dels Capellans': 'ES',
-  };
-
   const currentYear = new Date().getFullYear();
   const visitsThisYear = visits.filter(
     (v) => new Date(v.created_at).getFullYear() === currentYear
@@ -63,10 +55,11 @@ export default function ProfileScreen() {
   const countriesThisYear = Array.from(
     new Set(
       visitsThisYear
-        .map((v) => BEACH_COUNTRIES[v.beach])
+        .map((v) => v.country)
         .filter(Boolean)
     )
   );
+  console.log('Visitas por playa:', countriesThisYear);
 
   const countryCodeToEmoji = (cc: string) =>
     cc
@@ -114,15 +107,6 @@ export default function ProfileScreen() {
           </Text>
         </View>
       </View>
-
-      <Text style={styles.section}>Playas visitadas:</Text>
-      <FlatList
-        data={visitsByBeach}
-        keyExtractor={(item) => item.beach}
-        renderItem={({ item }) => (
-          <Text style={styles.item}>🏖️ {item.beach}: {item.count} visita(s)</Text>
-        )}
-      />
     </SafeAreaView>
   );
 }

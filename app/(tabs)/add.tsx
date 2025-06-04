@@ -47,7 +47,7 @@ export default function AddVisitScreen() {
 
       const location = await Location.getCurrentPositionAsync({});
       const { latitude, longitude } = location.coords;
-      const country = await getCountryFromCoords(latitude, longitude);
+      //const country = await getCountryFromCoords(latitude, longitude);
       setRegion({
         latitude,
         longitude,
@@ -55,7 +55,7 @@ export default function AddVisitScreen() {
         longitudeDelta: 0.01,
       });
       setMarker({ latitude, longitude });
-      setCountry(country);
+      //setCountry(country);
     })();
   }, []);
 
@@ -159,7 +159,7 @@ export default function AddVisitScreen() {
         photo_url: photoUrl,
         latitude: marker.latitude,
         longitude: marker.longitude,
-        country: country,
+        country: 'ES',
       },
     ]);
 
