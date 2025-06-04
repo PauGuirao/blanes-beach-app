@@ -50,6 +50,17 @@ export default function ProfileScreen() {
   const daysThisYear = Array.from(
     new Set(visitsThisYear.map((v) => new Date(v.created_at).toDateString()))
   );
+
+  const visitsByMonth: Record<number, { day: number; photo_url: string | null }[]> = {};
+  visitsThisYear.forEach((v) => {
+    const date = new Date(v.created_at);
+    const month = date.getMonth();
+    const day = date.getDate();
+    if (!visitsByMonth[month]) visitsByMonth[month] = [];
+    if (!visitsByMonth[month].some((d) => d.day === day)) {
+      visitsByMonth[month].push({ day, photo_url: v.photo_url });
+    }
+  });
   const morningVisits = visitsThisYear.filter((v) => {
     const hour = new Date(v.created_at).getHours();
     return hour >= 6 && hour < 12;
@@ -157,6 +168,37 @@ export default function ProfileScreen() {
             )
         )}
       </MapView>
+      <View style={styles.calendarSection}>
+        {Object.keys(visitsByMonth)
+          .sort((a, b) => Number(a) - Number(b))
+          .map((monthKey) => {
+            const month = Number(monthKey);
+            const monthName = new Date(currentYear, month)
+              .toLocaleString('default', { month: 'long' });
+            return (
+              <View key={month} style={styles.monthBlock}>
+                <Text style={styles.monthTitle}>{monthName}</Text>
+                <View style={styles.daysRow}>
+                  {visitsByMonth[month]
+                    .sort((a, b) => a.day - b.day)
+                    .map(({ day, photo_url }) => (
+                      <View key={day} style={styles.dayItem}>
+                        {photo_url ? (
+                          <Image
+                            source={{ uri: photo_url }}
+                            style={styles.dayBall}
+                          />
+                        ) : (
+                          <View style={[styles.dayBall, { backgroundColor: '#ccc' }]} />
+                        )}
+                        <Text style={styles.dayLabel}>{day}</Text>
+                      </View>
+                    ))}
+                </View>
+              </View>
+            );
+          })}
+      </View>
     </View>
   </SafeAreaView>
 );
@@ -267,5 +309,36 @@ const styles = StyleSheet.create({
     height: 300,
     borderRadius: 12,
     marginTop: 20,
+  },
+  calendarSection: {
+    width: '100%',
+    marginTop: 20,
+  },
+  monthBlock: {
+    marginBottom: 16,
+  },
+  monthTitle: {
+    fontWeight: '600',
+    marginBottom: 8,
+    textTransform: 'capitalize',
+  },
+  daysRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  dayItem: {
+    alignItems: 'center',
+    width: 60,
+  },
+  dayBall: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    overflow: 'hidden',
+  },
+  dayLabel: {
+    marginTop: 4,
+    fontSize: 12,
   },
 });
