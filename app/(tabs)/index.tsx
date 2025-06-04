@@ -120,7 +120,6 @@ export default function HomeTab() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>🌊 Tus visitas a la playa</Text>
       <FlatList
         data={getGroupedVisits(visits)}
         keyExtractor={(item) => item.key}
@@ -251,9 +250,9 @@ function VisitMap({ visits }: { visits: any[] }) {
 
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff', padding: 20 },
+  container: { flex: 1, backgroundColor: '#fff1', padding: 20, marginBottom:80 },
   title: { fontSize: 24, fontWeight: 'bold', marginBottom: 10 },
-  card: { marginBottom: 12, padding: 12, backgroundColor: '#eee', borderRadius: 0 },
+  card: { marginBottom: 12, padding: 12, borderRadius: 0, paddingRight:0 },
   beach: { fontWeight: 'bold', fontSize: 16 },
   date: { fontSize: 12, color: '#555' },
   image: {
@@ -300,6 +299,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 12,
     marginBottom: 12,
+    paddingLeft: 10
   },
   avatar: {
     width: 40,

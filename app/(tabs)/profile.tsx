@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import { useEffect, useState } from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -94,112 +94,115 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.tiktokHeader}>
-        <Image
-          source={require('@/assets/images/default-avatar.png')}
-          style={styles.profileImage}
-        />
-        <Text style={styles.username}>{name}</Text>
+       <ScrollView showsVerticalScrollIndicator={false}>
+        <View style={styles.tiktokHeader}>
+            <Image
+              source={require('@/assets/images/default-avatar.png')}
+              style={styles.profileImage}
+            />
+            <Text style={styles.username}>{name}</Text>
 
-        <View style={styles.statsRow}>
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>{distinctBeaches.length}</Text>
-            <Text style={styles.statLabel}>Playas</Text>
-          </View>
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>{totalVisits}</Text>
-            <Text style={styles.statLabel}>Visitas</Text>
-          </View>
-        </View>
-
-        <View style={styles.yearSummary}>
-          <Text style={styles.yearTitle}>Resumen {currentYear}</Text>
-          <View style={styles.sectionBlock}>
-            <Text style={styles.sectionTitle}>General</Text>
             <View style={styles.statsRow}>
               <View style={styles.statItem}>
-                <Text style={styles.statNumber}>{daysThisYear.length}</Text>
-                <Text style={styles.statLabel}>Días</Text>
-              </View>
-              <View style={styles.statItem}>
-                <Text style={styles.statNumber}>{beachesThisYear.length}</Text>
+                <Text style={styles.statNumber}>{distinctBeaches.length}</Text>
                 <Text style={styles.statLabel}>Playas</Text>
               </View>
               <View style={styles.statItem}>
-                <Text style={styles.statNumber}>{morningVisits}</Text>
-                <Text style={styles.statLabel}>Mañanas</Text>
-              </View>
-              <View style={styles.statItem}>
-                <Text style={styles.statNumber}>{nightVisits}</Text>
-                <Text style={styles.statLabel}>Noches</Text>
+                <Text style={styles.statNumber}>{totalVisits}</Text>
+                <Text style={styles.statLabel}>Visitas</Text>
               </View>
             </View>
-          </View>
-          <View style={styles.sectionBlock}>
-            <Text style={styles.sectionTitle}>Países</Text>
-            {favoriteCountry && (
-              <Text style={styles.favoriteCountry}>
-                País favorito: {countryCodeToEmoji(favoriteCountry)}
-              </Text>
-            )}
-            <Text style={styles.flagsRow}>
-              {countriesThisYear.map((c) => countryCodeToEmoji(c)).join(' ')}
-            </Text>
-          </View>
-        </View>
-      <MapView
-        style={styles.worldMap}
-        initialRegion={{
-          latitude: 0,
-          longitude: 0,
-          latitudeDelta: 120,
-          longitudeDelta: 120,
-        }}
-      >
-        {visits.map(
-          (v, i) =>
-            v.latitude &&
-            v.longitude && (
-              <Marker
-                key={i}
-                coordinate={{ latitude: v.latitude, longitude: v.longitude }}
-                title={v.beach}
-              />
-            )
-        )}
-      </MapView>
-      <View style={styles.calendarSection}>
-        {Object.keys(visitsByMonth)
-          .sort((a, b) => Number(a) - Number(b))
-          .map((monthKey) => {
-            const month = Number(monthKey);
-            const monthName = new Date(currentYear, month)
-              .toLocaleString('default', { month: 'long' });
-            return (
-              <View key={month} style={styles.monthBlock}>
-                <Text style={styles.monthTitle}>{monthName}</Text>
-                <View style={styles.daysRow}>
-                  {visitsByMonth[month]
-                    .sort((a, b) => a.day - b.day)
-                    .map(({ day, photo_url }) => (
-                      <View key={day} style={styles.dayItem}>
-                        {photo_url ? (
-                          <Image
-                            source={{ uri: photo_url }}
-                            style={styles.dayBall}
-                          />
-                        ) : (
-                          <View style={[styles.dayBall, { backgroundColor: '#ccc' }]} />
-                        )}
-                        <Text style={styles.dayLabel}>{day}</Text>
-                      </View>
-                    ))}
+
+            <View style={styles.yearSummary}>
+              <Text style={styles.yearTitle}>Resumen {currentYear}</Text>
+              <View style={styles.sectionBlock}>
+                <Text style={styles.sectionTitle}>General</Text>
+                <View style={styles.statsRow}>
+                  <View style={styles.statItem}>
+                    <Text style={styles.statNumber}>{daysThisYear.length}</Text>
+                    <Text style={styles.statLabel}>Días</Text>
+                  </View>
+                  <View style={styles.statItem}>
+                    <Text style={styles.statNumber}>{beachesThisYear.length}</Text>
+                    <Text style={styles.statLabel}>Playas</Text>
+                  </View>
+                  <View style={styles.statItem}>
+                    <Text style={styles.statNumber}>{morningVisits}</Text>
+                    <Text style={styles.statLabel}>Mañanas</Text>
+                  </View>
+                  <View style={styles.statItem}>
+                    <Text style={styles.statNumber}>{nightVisits}</Text>
+                    <Text style={styles.statLabel}>Noches</Text>
+                  </View>
                 </View>
               </View>
-            );
-          })}
-      </View>
-    </View>
+              <View style={styles.sectionBlock}>
+                <Text style={styles.sectionTitle}>Países</Text>
+                {favoriteCountry && (
+                  <Text style={styles.favoriteCountry}>
+                    País favorito: {countryCodeToEmoji(favoriteCountry)}
+                  </Text>
+                )}
+                <Text style={styles.flagsRow}>
+                  {countriesThisYear.map((c) => countryCodeToEmoji(c)).join(' ')}
+                </Text>
+              </View>
+            </View>
+          <MapView
+            style={styles.worldMap}
+            initialRegion={{
+              latitude: 0,
+              longitude: 0,
+              latitudeDelta: 120,
+              longitudeDelta: 120,
+            }}
+          >
+            {visits.map(
+              (v, i) =>
+                v.latitude &&
+                v.longitude && (
+                  <Marker
+                    key={i}
+                    coordinate={{ latitude: v.latitude, longitude: v.longitude }}
+                    title={v.beach}
+                  />
+                )
+            )}
+          </MapView>
+          <View style={styles.calendarSection}>
+            {Object.keys(visitsByMonth)
+              .sort((a, b) => Number(a) - Number(b))
+              .map((monthKey) => {
+                const month = Number(monthKey);
+                const monthName = new Date(currentYear, month)
+                  .toLocaleString('default', { month: 'long' });
+                return (
+                  <View key={month} style={styles.monthBlock}>
+                    <Text style={styles.monthTitle}>{monthName}</Text>
+                    <View style={styles.daysRow}>
+                      {visitsByMonth[month]
+                        .sort((a, b) => a.day - b.day)
+                        .map(({ day, photo_url }) => (
+                          <View key={day} style={styles.dayItem}>
+                            {photo_url ? (
+                              <Image
+                                source={{ uri: photo_url }}
+                                style={styles.dayBall}
+                              />
+                            ) : (
+                              <View style={[styles.dayBall, { backgroundColor: '#ccc' }]} />
+                            )}
+                            <Text style={styles.dayLabel}>{day}</Text>
+                          </View>
+                        ))}
+                    </View>
+                  </View>
+                );
+              })}
+          </View>
+        </View>
+      </ScrollView>
+      
   </SafeAreaView>
 );
 }
