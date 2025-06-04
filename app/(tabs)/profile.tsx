@@ -42,6 +42,37 @@ export default function ProfileScreen() {
     count: visits.filter((v) => v.beach === beach).length,
   }));
 
+  const BEACH_COUNTRIES: Record<string, string> = {
+    'Platja de Blanes': 'ES',
+    'Cala Sant Francesc': 'ES',
+    'Cala Treumal': 'ES',
+    'S\u2019Abanell': 'ES',
+    'Platja dels Capellans': 'ES',
+  };
+
+  const currentYear = new Date().getFullYear();
+  const visitsThisYear = visits.filter(
+    (v) => new Date(v.created_at).getFullYear() === currentYear
+  );
+  const daysThisYear = Array.from(
+    new Set(visitsThisYear.map((v) => new Date(v.created_at).toDateString()))
+  );
+  const beachesThisYear = Array.from(
+    new Set(visitsThisYear.map((v) => v.beach))
+  );
+  const countriesThisYear = Array.from(
+    new Set(
+      visitsThisYear
+        .map((v) => BEACH_COUNTRIES[v.beach])
+        .filter(Boolean)
+    )
+  );
+
+  const countryCodeToEmoji = (cc: string) =>
+    cc
+      .toUpperCase()
+      .replace(/./g, (c) => String.fromCodePoint(127397 + c.charCodeAt(0)));
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.tiktokHeader}>
@@ -60,6 +91,27 @@ export default function ProfileScreen() {
             <Text style={styles.statNumber}>{totalVisits}</Text>
             <Text style={styles.statLabel}>Visitas</Text>
           </View>
+        </View>
+
+        <View style={styles.yearSummary}>
+          <Text style={styles.yearTitle}>Resumen {currentYear}</Text>
+          <View style={styles.statsRow}>
+            <View style={styles.statItem}>
+              <Text style={styles.statNumber}>{daysThisYear.length}</Text>
+              <Text style={styles.statLabel}>D\u00edas</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statNumber}>{beachesThisYear.length}</Text>
+              <Text style={styles.statLabel}>Playas</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statNumber}>{countriesThisYear.length}</Text>
+              <Text style={styles.statLabel}>Pa\u00edses</Text>
+            </View>
+          </View>
+          <Text style={styles.flagsRow}>
+            {countriesThisYear.map((c) => countryCodeToEmoji(c)).join(' ')}
+          </Text>
         </View>
       </View>
 
@@ -138,5 +190,20 @@ const styles = StyleSheet.create({
   statLabel: {
     fontSize: 14,
     color: '#666',
-  }  
+  },
+
+  yearSummary: {
+    marginTop: 12,
+    alignItems: 'center',
+    gap: 4,
+  },
+
+  yearTitle: {
+    fontWeight: 'bold',
+  },
+
+  flagsRow: {
+    marginTop: 4,
+    fontSize: 24,
+  },
 });
