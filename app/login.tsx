@@ -1,7 +1,9 @@
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
 import { supabase } from '@/lib/supabase';
-import { router } from 'expo-router';
+import { Link, router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Button, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Button, StyleSheet, TextInput, View } from 'react-native';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -16,18 +18,12 @@ export default function LoginScreen() {
     }
   };
 
-  const handleSignup = async () => {
-    const { error } = await supabase.auth.signUp({ email, password });
-    if (error) {
-      Alert.alert('Error al registrarse', error.message);
-    } else {
-      Alert.alert('¡Registrado!', 'Ahora inicia sesión con tus datos');
-    }
-  };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Bienvenido 👋</Text>
+    <ThemedView style={styles.container}>
+      <ThemedText type="title" style={styles.title}>
+        Bienvenido 👋
+      </ThemedText>
       <TextInput
         style={styles.input}
         placeholder="Correo electrónico"
@@ -43,11 +39,11 @@ export default function LoginScreen() {
         value={password}
         onChangeText={setPassword}
       />
-      <View style={styles.buttonGroup}>
-        <Button title="Iniciar sesión" onPress={handleLogin} />
-        <Button title="Registrarse" onPress={handleSignup} />
-      </View>
-    </View>
+      <Button title="Iniciar sesión" onPress={handleLogin} />
+      <Link href="/register" style={styles.registerLink}>
+        <ThemedText type="link">Crear cuenta</ThemedText>
+      </Link>
+    </ThemedView>
   );
 }
 
@@ -61,8 +57,8 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 12,
   },
-  buttonGroup: {
-    marginTop: 10,
-    gap: 8,
+  registerLink: {
+    marginTop: 12,
+    alignSelf: 'center',
   },
 });
