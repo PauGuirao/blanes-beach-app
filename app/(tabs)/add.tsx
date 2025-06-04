@@ -30,6 +30,7 @@ export default function AddVisitScreen() {
   const [facing, setFacing] = useState<CameraType>('back');
   const navigation = useNavigation();
   const [photoTaken, setPhotoTaken] = useState(false);
+  const [country, setCountry] = useState<string | null>(null);
   const cameraRef = useRef<CameraView>(null);
 
   useEffect(() => {
@@ -46,6 +47,7 @@ export default function AddVisitScreen() {
 
       const location = await Location.getCurrentPositionAsync({});
       const { latitude, longitude } = location.coords;
+      const country = await getCountryFromCoords(latitude, longitude);
       setRegion({
         latitude,
         longitude,
@@ -53,6 +55,7 @@ export default function AddVisitScreen() {
         longitudeDelta: 0.01,
       });
       setMarker({ latitude, longitude });
+      setCountry(country);
     })();
   }, []);
 
@@ -73,6 +76,16 @@ export default function AddVisitScreen() {
   function toggleCameraFacing() {
     setFacing(current => (current === 'back' ? 'front' : 'back'));
   }
+
+  const getCountryFromCoords = async (latitude: number, longitude: number): Promise<string | null> => {
+    try {
+      const result = await Location.reverseGeocodeAsync({ latitude, longitude });
+      return result[0]?.country ?? null;
+    } catch (error) {
+      console.error('Error al obtener el país:', error);
+      return null;
+    }
+  };
 
   const generateId = async () => {
     const bytes = await Crypto.getRandomBytesAsync(16);
@@ -146,6 +159,7 @@ export default function AddVisitScreen() {
         photo_url: photoUrl,
         latitude: marker.latitude,
         longitude: marker.longitude,
+        country: country,
       },
     ]);
 

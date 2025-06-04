@@ -98,7 +98,7 @@ export default function ProfileScreen() {
           <View style={styles.statsRow}>
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>{daysThisYear.length}</Text>
-              <Text style={styles.statLabel}>D\u00edas</Text>
+              <Text style={styles.statLabel}>Días</Text>
             </View>
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>{beachesThisYear.length}</Text>
@@ -106,7 +106,7 @@ export default function ProfileScreen() {
             </View>
             <View style={styles.statItem}>
               <Text style={styles.statNumber}>{countriesThisYear.length}</Text>
-              <Text style={styles.statLabel}>Pa\u00edses</Text>
+              <Text style={styles.statLabel}>Países</Text>
             </View>
           </View>
           <Text style={styles.flagsRow}>
