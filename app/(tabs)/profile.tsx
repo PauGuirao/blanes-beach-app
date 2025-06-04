@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase';
 import { useEffect, useState } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
+import MapView, { Marker } from 'react-native-maps';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ProfileScreen() {
@@ -102,13 +103,34 @@ export default function ProfileScreen() {
               <Text style={styles.statLabel}>Países</Text>
             </View>
           </View>
-          <Text style={styles.flagsRow}>
-            {countriesThisYear.map((c) => countryCodeToEmoji(c)).join(' ')}
-          </Text>
-        </View>
+        <Text style={styles.flagsRow}>
+          {countriesThisYear.map((c) => countryCodeToEmoji(c)).join(' ')}
+        </Text>
       </View>
-    </SafeAreaView>
-  );
+      <MapView
+        style={styles.worldMap}
+        initialRegion={{
+          latitude: 0,
+          longitude: 0,
+          latitudeDelta: 120,
+          longitudeDelta: 120,
+        }}
+      >
+        {visits.map(
+          (v, i) =>
+            v.latitude &&
+            v.longitude && (
+              <Marker
+                key={i}
+                coordinate={{ latitude: v.latitude, longitude: v.longitude }}
+                title={v.beach}
+              />
+            )
+        )}
+      </MapView>
+    </View>
+  </SafeAreaView>
+);
 }
 
 const styles = StyleSheet.create({
@@ -189,5 +211,11 @@ const styles = StyleSheet.create({
   flagsRow: {
     marginTop: 4,
     fontSize: 24,
+  },
+  worldMap: {
+    width: '100%',
+    height: 300,
+    borderRadius: 12,
+    marginTop: 20,
   },
 });
