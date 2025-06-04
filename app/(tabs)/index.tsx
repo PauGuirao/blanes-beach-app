@@ -159,8 +159,10 @@ export default function HomeTab() {
                   return (
                     <View style={[styles.visitPreview, { width: ITEM_WIDTH, marginRight: SPACING }]}>
                       <Image source={{ uri: v.photo_url }} style={styles.visitImage} />
-                      <Text style={styles.visitBeach}>{v.beach}</Text>
-                      {v.comment ? <Text style={styles.visitComment}>“{v.comment}”</Text> : null}
+                      <View style={styles.infoOverlay}>
+                        <Text style={styles.visitBeach}>{v.beach}</Text>
+                        {v.comment ? <Text style={styles.visitComment}>“{v.comment}”</Text> : null}
+                      </View>
                     </View>
                   );
                 }}
@@ -262,9 +264,9 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   visitPreview: {
-    backgroundColor: '#fff',
     borderRadius: 12,
     overflow: 'hidden',
+    position: 'relative',
   },
   visitImage: {
     width: '100%',
@@ -272,10 +274,19 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 12,
     borderTopRightRadius: 12,
   },
+  infoOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    padding: 10,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
   visitBeach: {
-    marginTop: 6,
+    marginTop: 0,
     fontWeight: '500',
     fontSize: 14,
+    color: '#fff',
   },
   dateTitle: {
     fontSize: 16,
@@ -286,7 +297,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
     fontSize: 13,
     fontStyle: 'italic',
-    color: '#444',
+    color: '#fff',
   },
   mapMini: {
     width: '100%',
