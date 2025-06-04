@@ -1,9 +1,8 @@
 import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
 import { supabase } from '@/lib/supabase';
 import { Link, router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Button, StyleSheet, TextInput, View } from 'react-native';
+import { Alert, Button, SafeAreaView, StyleSheet, TextInput } from 'react-native';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -20,7 +19,7 @@ export default function LoginScreen() {
 
 
   return (
-    <ThemedView style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <ThemedText type="title" style={styles.title}>
         Bienvenido 👋
       </ThemedText>
@@ -43,7 +42,7 @@ export default function LoginScreen() {
       <Link href="/register" style={styles.registerLink}>
         <ThemedText type="link">Crear cuenta</ThemedText>
       </Link>
-    </ThemedView>
+    </SafeAreaView>
   );
 }
 
