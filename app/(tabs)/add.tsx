@@ -116,13 +116,14 @@ export default function AddVisitScreen() {
     try {
       const response = await fetch(uri);
       const blob = await response.blob();
+      const arrayBuffer = await new Response(blob).arrayBuffer();
       const id = await generateId();
       const path = `visits/${id}.jpg`;
 
       const { error } = await supabase
         .storage
         .from('images')
-        .upload(path, blob, {
+        .upload(path, arrayBuffer, {
           contentType: 'image/jpeg',
           cacheControl: '3600',
           upsert: false,

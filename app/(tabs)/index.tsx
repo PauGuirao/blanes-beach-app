@@ -120,6 +120,7 @@ export default function HomeTab() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <Text style={styles.feedTitle}>Tu feed</Text>
       <FlatList
         data={getGroupedVisits(visits)}
         keyExtractor={(item) => item.key}
@@ -252,11 +253,17 @@ function VisitMap({ visits }: { visits: any[] }) {
 
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff1', padding: 20, marginBottom:80 },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 10 },
+  container: { flex: 1, backgroundColor: 'rgba(235, 235, 235, 0.5).5)', padding: 20, marginBottom:80 },
   card: { marginBottom: 12, padding: 12, borderRadius: 0, paddingRight:0 },
   beach: { fontWeight: 'bold', fontSize: 16 },
   date: { fontSize: 12, color: '#555' },
+  feedTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    textAlign: 'center',
+    marginBottom: 12,
+    marginTop: 10,
+  },
   image: {
     width: '100%',
     height: 200,
@@ -270,9 +277,11 @@ const styles = StyleSheet.create({
   },
   visitImage: {
     width: '100%',
-    height: 300,
+    height: 350,
     borderTopLeftRadius: 12,
     borderTopRightRadius: 12,
+    borderWidth: 1,
+  borderColor: 'rgba(89, 89, 89, 0.1)', // or any color you prefer
   },
   infoOverlay: {
     position: 'absolute',
@@ -280,7 +289,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     padding: 10,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    backgroundColor: 'rgba(89, 89, 89, 0.5)',
   },
   visitBeach: {
     marginTop: 0,

@@ -114,7 +114,6 @@ export default function ProfileScreen() {
             </View>
 
             <View style={styles.yearSummary}>
-              <Text style={styles.yearTitle}>Resumen {currentYear}</Text>
               <View style={styles.sectionBlock}>
                 <Text style={styles.sectionTitle}>General</Text>
                 <View style={styles.statsRow}>
@@ -138,11 +137,7 @@ export default function ProfileScreen() {
               </View>
               <View style={styles.sectionBlock}>
                 <Text style={styles.sectionTitle}>Países</Text>
-                {favoriteCountry && (
-                  <Text style={styles.favoriteCountry}>
-                    País favorito: {countryCodeToEmoji(favoriteCountry)}
-                  </Text>
-                )}
+
                 <Text style={styles.flagsRow}>
                   {countriesThisYear.map((c) => countryCodeToEmoji(c)).join(' ')}
                 </Text>
