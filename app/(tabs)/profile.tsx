@@ -50,6 +50,11 @@ export default function ProfileScreen() {
   const daysThisYear = Array.from(
     new Set(visitsThisYear.map((v) => new Date(v.created_at).toDateString()))
   );
+  const morningVisits = visitsThisYear.filter((v) => {
+    const hour = new Date(v.created_at).getHours();
+    return hour >= 6 && hour < 12;
+  }).length;
+  const nightVisits = visitsThisYear.length - morningVisits;
   const beachesThisYear = Array.from(
     new Set(visitsThisYear.map((v) => v.beach))
   );
@@ -60,6 +65,15 @@ export default function ProfileScreen() {
         .filter(Boolean)
     )
   );
+  const favoriteCountry = (() => {
+    const counts: Record<string, number> = {};
+    visitsThisYear.forEach((v) => {
+      if (v.country) {
+        counts[v.country] = (counts[v.country] || 0) + 1;
+      }
+    });
+    return Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
+  })();
   console.log('Visitas por playa:', countriesThisYear);
 
   const countryCodeToEmoji = (cc: string) =>
@@ -89,24 +103,39 @@ export default function ProfileScreen() {
 
         <View style={styles.yearSummary}>
           <Text style={styles.yearTitle}>Resumen {currentYear}</Text>
-          <View style={styles.statsRow}>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{daysThisYear.length}</Text>
-              <Text style={styles.statLabel}>Días</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{beachesThisYear.length}</Text>
-              <Text style={styles.statLabel}>Playas</Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statNumber}>{countriesThisYear.length}</Text>
-              <Text style={styles.statLabel}>Países</Text>
+          <View style={styles.sectionBlock}>
+            <Text style={styles.sectionTitle}>General</Text>
+            <View style={styles.statsRow}>
+              <View style={styles.statItem}>
+                <Text style={styles.statNumber}>{daysThisYear.length}</Text>
+                <Text style={styles.statLabel}>Días</Text>
+              </View>
+              <View style={styles.statItem}>
+                <Text style={styles.statNumber}>{beachesThisYear.length}</Text>
+                <Text style={styles.statLabel}>Playas</Text>
+              </View>
+              <View style={styles.statItem}>
+                <Text style={styles.statNumber}>{morningVisits}</Text>
+                <Text style={styles.statLabel}>Mañanas</Text>
+              </View>
+              <View style={styles.statItem}>
+                <Text style={styles.statNumber}>{nightVisits}</Text>
+                <Text style={styles.statLabel}>Noches</Text>
+              </View>
             </View>
           </View>
-        <Text style={styles.flagsRow}>
-          {countriesThisYear.map((c) => countryCodeToEmoji(c)).join(' ')}
-        </Text>
-      </View>
+          <View style={styles.sectionBlock}>
+            <Text style={styles.sectionTitle}>Países</Text>
+            {favoriteCountry && (
+              <Text style={styles.favoriteCountry}>
+                País favorito: {countryCodeToEmoji(favoriteCountry)}
+              </Text>
+            )}
+            <Text style={styles.flagsRow}>
+              {countriesThisYear.map((c) => countryCodeToEmoji(c)).join(' ')}
+            </Text>
+          </View>
+        </View>
       <MapView
         style={styles.worldMap}
         initialRegion={{
@@ -200,8 +229,29 @@ const styles = StyleSheet.create({
 
   yearSummary: {
     marginTop: 12,
-    alignItems: 'center',
-    gap: 4,
+    alignItems: 'stretch',
+    gap: 8,
+    backgroundColor: '#f2f2f2',
+    padding: 12,
+    borderRadius: 12,
+    width: '100%',
+  },
+
+  sectionBlock: {
+    marginTop: 8,
+  },
+
+  sectionTitle: {
+    fontWeight: '600',
+    marginBottom: 4,
+    fontSize: 16,
+  },
+
+  favoriteCountry: {
+    alignSelf: 'center',
+    marginBottom: 4,
+    fontSize: 16,
+    fontWeight: '600',
   },
 
   yearTitle: {
