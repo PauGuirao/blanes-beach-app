@@ -14,11 +14,18 @@ import {
 export default function RegisterScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [username, setUsername] = useState('');
+  const [name, setName] = useState('');
 
   const handleRegister = async () => {
-    if (!email || !password || !username) {
+    if (!email || !password || !confirmPassword || !username || !name) {
       Alert.alert('Error', 'Por favor rellena todos los campos');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      Alert.alert('Error', 'Las contraseñas no coinciden');
       return;
     }
 
@@ -41,7 +48,7 @@ export default function RegisterScreen() {
 
     const { error: profileError } = await supabase
       .from('profiles')
-      .insert({ id: data.user.id, name: username });
+      .insert({ id: data.user.id, name: username, full_name: name });
 
     if (profileError) {
       Alert.alert('Error al guardar el perfil', profileError.message);
@@ -74,6 +81,22 @@ export default function RegisterScreen() {
           secureTextEntry
           value={password}
           onChangeText={setPassword}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Repite la contraseña"
+          placeholderTextColor="#888"
+          secureTextEntry
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Nombre"
+          placeholderTextColor="#888"
+          autoCapitalize="words"
+          value={name}
+          onChangeText={setName}
         />
         <TextInput
           style={styles.input}
