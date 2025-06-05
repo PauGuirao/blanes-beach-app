@@ -5,6 +5,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { Dimensions, FlatList, Image, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { Pressable } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -129,7 +130,10 @@ export default function HomeTab() {
           const visitsWithMap = [...item.visits, { type: 'map' }];
           return (
             <View style={styles.card}>
-              <View style={styles.headerRow}>
+              <Pressable
+                onPress={() => router.push(`/user/${item.user_id}`)}
+                style={styles.headerRow}
+              >
                 <Image
                   source={require('@/assets/images/default-avatar.png')}
                   style={styles.avatar}
@@ -140,7 +144,7 @@ export default function HomeTab() {
                     {formatDate(item.date)} — fue a {item.visits.length} playa{item.visits.length > 1 ? 's' : ''}
                   </Text>
                 </View>
-              </View>
+              </Pressable>
               
               <FlatList
                 data={visitsWithMap}
