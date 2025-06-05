@@ -121,7 +121,12 @@ export default function HomeTab() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.feedTitle}>Tu feed</Text>
+      <View style={styles.headerRowTop}>
+        <Pressable onPress={() => router.push('/social')}>
+          <FontAwesome name="heart" size={24} color="red" />
+        </Pressable>
+        <Text style={styles.feedTitle}>Tu feed</Text>
+      </View>
       <FlatList
         data={getGroupedVisits(visits)}
         keyExtractor={(item) => item.key}
@@ -258,6 +263,12 @@ function VisitMap({ visits }: { visits: any[] }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: 'rgba(235, 235, 235, 0.5).5)', padding: 20, marginBottom:80 },
+  headerRowTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 12,
+  },
   card: { marginBottom: 12, padding: 12, borderRadius: 0, paddingRight:0 },
   beach: { fontWeight: 'bold', fontSize: 16 },
   date: { fontSize: 12, color: '#555' },
@@ -265,6 +276,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
     textAlign: 'center',
+    flex: 1,
     marginBottom: 12,
     marginTop: 10,
   },

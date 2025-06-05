@@ -2,6 +2,7 @@ import { supabase } from '@/lib/supabase';
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -10,6 +11,9 @@ export default function UserProfileScreen() {
   const [name, setName] = useState('');
   const [visits, setVisits] = useState<any[]>([]);
   const [avatar, setAvatar] = useState<string | null>(null);
+  const [isFriend, setIsFriend] = useState(false);
+  const [hasPending, setHasPending] = useState(false);
+  const [isSelf, setIsSelf] = useState(false);
 
   useEffect(() => {
     if (typeof userId === 'string') {
@@ -18,6 +22,10 @@ export default function UserProfileScreen() {
   }, [userId]);
 
   const fetchProfileAndVisits = async (id: string) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    const currentUser = session?.user;
+    setIsSelf(currentUser?.id === id);
+
     const { data: profile } = await supabase
       .from('profiles')
       .select('name, photo_url')
@@ -33,6 +41,23 @@ export default function UserProfileScreen() {
       .eq('user_id', id);
 
     setVisits(userVisits ?? []);
+
+    if (currentUser) {
+      const { data: friendships } = await supabase
+        .from('friendships')
+        .select('*')
+        .or(
+          `and(requester_id.eq.${currentUser.id},addressee_id.eq.${id}),and(requester_id.eq.${id},addressee_id.eq.${currentUser.id})`
+        );
+
+      const accepted = friendships?.find((f) => f.status === 'accepted');
+      const pending = friendships?.find(
+        (f) => f.status === 'pending' && f.requester_id === currentUser.id
+      );
+
+      setIsFriend(!!accepted);
+      setHasPending(!!pending);
+    }
   };
 
   const totalVisits = visits.length;
@@ -85,6 +110,19 @@ export default function UserProfileScreen() {
     return Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
   })();
 
+  const handleFollow = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    const currentUser = session?.user;
+    if (!currentUser || typeof userId !== 'string') return;
+
+    await supabase.from('friendships').insert({
+      requester_id: currentUser.id,
+      addressee_id: userId,
+      status: 'pending',
+    });
+    setHasPending(true);
+  };
+
   const countryCodeToEmoji = (cc: string) =>
     cc
       .toUpperCase()
@@ -99,6 +137,14 @@ export default function UserProfileScreen() {
             style={styles.profileImage}
           />
           <Text style={styles.username}>{name}</Text>
+          {!isSelf && !isFriend && !hasPending && (
+            <Pressable style={styles.followBtn} onPress={handleFollow}>
+              <Text style={styles.followText}>Seguir</Text>
+            </Pressable>
+          )}
+          {hasPending && !isFriend && (
+            <Text style={styles.pendingText}>Solicitud enviada</Text>
+          )}
 
           <View style={styles.statsRow}>
             <View style={styles.statItem}>
@@ -243,6 +289,22 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 8,
+  },
+
+  followBtn: {
+    backgroundColor: '#007bff',
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 20,
+    marginBottom: 8,
+  },
+  followText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  pendingText: {
+    marginBottom: 8,
+    color: '#555',
   },
 
   statsRow: {
