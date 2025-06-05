@@ -1,7 +1,8 @@
 import { supabase } from '@/lib/supabase';
 import { useEffect, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import MapView from 'react-native-maps';
+import SmallMarker from '@/components/SmallMarker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ProfileScreen() {
@@ -156,7 +157,7 @@ export default function ProfileScreen() {
               (v, i) =>
                 v.latitude &&
                 v.longitude && (
-                  <Marker
+                  <SmallMarker
                     key={i}
                     coordinate={{ latitude: v.latitude, longitude: v.longitude }}
                     title={v.beach}

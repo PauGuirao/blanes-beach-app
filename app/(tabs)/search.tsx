@@ -3,12 +3,14 @@ import { useEffect, useState } from 'react';
 import {
   FlatList,
   Image,
+  Text,
   SafeAreaView,
   StyleSheet,
   TextInput,
   View,
 } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import MapView from 'react-native-maps';
+import SmallMarker from '@/components/SmallMarker';
 
 export default function SearchTab() {
   const [visits, setVisits] = useState<any[]>([]);
@@ -39,6 +41,9 @@ export default function SearchTab() {
     <View style={styles.item}>
       <View style={styles.imageWrapper}>
         <Image source={{ uri: item.photo_url }} style={styles.image} />
+        <View style={styles.usernameOverlay}>
+          <Text style={styles.username}>{item.username}</Text>
+        </View>
         {item.latitude && item.longitude && (
           <MapView
             style={styles.mapOverlay}
@@ -55,7 +60,7 @@ export default function SearchTab() {
             pointerEvents="none"
             liteMode={true}
           >
-            <Marker
+            <SmallMarker
               coordinate={{ latitude: item.latitude, longitude: item.longitude }}
             />
           </MapView>
@@ -107,8 +112,21 @@ const styles = StyleSheet.create({
   },
   image: {
     width: '100%',
-    aspectRatio: 1,
+    aspectRatio: 0.75,
     borderRadius: 8,
+  },
+  usernameOverlay: {
+    position: 'absolute',
+    top: 8,
+    left: 8,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  username: {
+    color: '#fff',
+    fontSize: 12,
   },
   mapOverlay: {
     position: 'absolute',
