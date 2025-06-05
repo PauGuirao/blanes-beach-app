@@ -48,9 +48,28 @@ export default function HomeTab() {
   }, []);
 
   const fetchVisits = async () => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    const user = session?.user;
+    if (!user) return;
+
+    const { data: friendships } = await supabase
+      .from('friendships')
+      .select('requester_id, addressee_id')
+      .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`)
+      .eq('status', 'accepted');
+
+    const friendIds = (friendships ?? []).map((f) =>
+      f.requester_id === user.id ? f.addressee_id : f.requester_id
+    );
+
+    const userAndFriends = [user.id, ...friendIds];
+
     const { data, error } = await supabase
       .from('visits')
       .select('*, profiles(name)')
+      .in('user_id', userAndFriends)
       .order('created_at', { ascending: false });
 
     if (error) {
