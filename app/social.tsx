@@ -44,21 +44,22 @@ export default function SocialScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Solicitudes</Text>
-      {requests.map((r) => (
-        <View key={r.id} style={styles.row}>
-          <Text style={styles.name}>{r.requester_name}</Text>
-          <Pressable
-            style={styles.acceptBtn}
-            onPress={() => acceptRequest(r.id)}
-          >
-            <Text style={styles.btnText}>Aceptar</Text>
-          </Pressable>
-        </View>
-      ))}
-      {requests.length === 0 && (
-        <Text style={styles.empty}>No tienes solicitudes pendientes</Text>
-      )}
+      <View style={styles.container}>
+        {requests.map((r) => (
+          <View key={r.id} style={styles.row}>
+            <Text style={styles.name}>@{r.requester_name}</Text>
+            <Pressable
+              style={styles.acceptBtn}
+              onPress={() => acceptRequest(r.id)}
+            >
+              <Text style={styles.btnText}>Aceptar</Text>
+            </Pressable>
+          </View>
+        ))}
+        {requests.length === 0 && (
+          <Text style={styles.empty}>No tienes solicitudes pendientes</Text>
+        )}
+      </View>
     </SafeAreaView>
   );
 }

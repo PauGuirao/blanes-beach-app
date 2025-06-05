@@ -4,8 +4,7 @@ import { getClosestPointInfo } from '@/utils/testCoastDistance';
 import { FontAwesome } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { Dimensions, FlatList, Image, SafeAreaView, StyleSheet, Text, View } from 'react-native';
-import { Pressable } from 'react-native';
+import { Dimensions, FlatList, Image, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -24,9 +23,28 @@ export default function HomeTab() {
     if (result) {
       console.log(result.isNear ? '✅ Cerca del mar' : '❌ Lejos del mar');
     }
+  
     fetchVisits();
     fetchDayLikes();
     fetchDayComments();
+  
+    // 🟢 Suscribirse a eventos en 'visits'
+    const channel = supabase
+      .channel('realtime:visits')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'visits' },
+        () => {
+          console.log('🆕 Cambio detectado en visits');
+          fetchVisits(); // recargar visitas automáticamente
+        }
+      )
+      .subscribe();
+  
+    // 🔴 Limpiar al desmontar
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const fetchVisits = async () => {
@@ -98,6 +116,7 @@ export default function HomeTab() {
       visits: any[];
       key: string;
     }> = {};
+    
   
     for (const v of visits) {
       const date = new Date(v.created_at);
@@ -123,7 +142,7 @@ export default function HomeTab() {
     <SafeAreaView style={styles.container}>
       <View style={styles.headerRowTop}>
         <Pressable onPress={() => router.push('/social')}>
-          <FontAwesome name="heart" size={24} color="red" />
+          <FontAwesome name="heart-o" size={24} color="black" />
         </Pressable>
         <Text style={styles.feedTitle}>Tu feed</Text>
       </View>
@@ -266,8 +285,10 @@ const styles = StyleSheet.create({
   headerRowTop: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 0,
     marginBottom: 12,
+    paddingVertical:8,
+    paddingHorizontal:22
   },
   card: { marginBottom: 12, padding: 12, borderRadius: 0, paddingRight:0 },
   beach: { fontWeight: 'bold', fontSize: 16 },
