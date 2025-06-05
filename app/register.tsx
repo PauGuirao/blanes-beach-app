@@ -17,15 +17,25 @@ export default function RegisterScreen() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [username, setUsername] = useState('');
   const [name, setName] = useState('');
+  const [step, setStep] = useState<1 | 2>(1);
 
-  const handleRegister = async () => {
-    if (!email || !password || !confirmPassword || !username || !name) {
+  const handleNextStep = () => {
+    if (!email || !password || !confirmPassword || !name) {
       Alert.alert('Error', 'Por favor rellena todos los campos');
       return;
     }
 
     if (password !== confirmPassword) {
       Alert.alert('Error', 'Las contraseñas no coinciden');
+      return;
+    }
+
+    setStep(2);
+  };
+
+  const handleRegister = async () => {
+    if (!username) {
+      Alert.alert('Error', 'Por favor ingresa un nombre de usuario');
       return;
     }
 
@@ -61,55 +71,67 @@ export default function RegisterScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View  style={styles.container}>
+      <View style={styles.container}>
         <Text style={styles.heading}>Create Account</Text>
         <Text style={styles.subheading}>Join the community 🌍</Text>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Nombre"
-          placeholderTextColor="#888"
-          autoCapitalize="words"
-          value={name}
-          onChangeText={setName}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Correo electrónico"
-          placeholderTextColor="#888"
-          autoCapitalize="none"
-          keyboardType="email-address"
-          value={email}
-          onChangeText={setEmail}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Contraseña"
-          placeholderTextColor="#888"
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Repite la contraseña"
-          placeholderTextColor="#888"
-          secureTextEntry
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Nombre de usuario"
-          placeholderTextColor="#888"
-          autoCapitalize="none"
-          value={username}
-          onChangeText={setUsername}
-        />
-
-        <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
-          <Text style={styles.registerButtonText}>Sign up</Text>
-        </TouchableOpacity>
+        {step === 1 ? (
+          <>
+            <TextInput
+              style={styles.input}
+              placeholder="Nombre"
+              placeholderTextColor="#888"
+              autoCapitalize="words"
+              value={name}
+              onChangeText={setName}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Correo electrónico"
+              placeholderTextColor="#888"
+              autoCapitalize="none"
+              keyboardType="email-address"
+              value={email}
+              onChangeText={setEmail}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Contraseña"
+              placeholderTextColor="#888"
+              secureTextEntry
+              value={password}
+              onChangeText={setPassword}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Repite la contraseña"
+              placeholderTextColor="#888"
+              secureTextEntry
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+            />
+            <TouchableOpacity style={styles.registerButton} onPress={handleNextStep}>
+              <Text style={styles.registerButtonText}>Siguiente</Text>
+            </TouchableOpacity>
+          </>
+        ) : (
+          <>
+            <TextInput
+              style={styles.input}
+              placeholder="Nombre de usuario"
+              placeholderTextColor="#888"
+              autoCapitalize="none"
+              value={username}
+              onChangeText={setUsername}
+            />
+            <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
+              <Text style={styles.registerButtonText}>Sign up</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setStep(1)} style={styles.backButton}>
+              <Text style={styles.backButtonText}>Atrás</Text>
+            </TouchableOpacity>
+          </>
+        )}
 
         <View style={styles.orRow}>
           <View style={styles.line} />
@@ -163,6 +185,15 @@ const styles = StyleSheet.create({
   },
   registerButtonText: {
     color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  backButton: {
+    marginBottom: 16,
+    alignItems: 'center',
+  },
+  backButtonText: {
+    color: '#6C63FF',
     fontSize: 16,
     fontWeight: '600',
   },
