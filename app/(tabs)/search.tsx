@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import { useEffect, useState } from 'react';
+import { FontAwesome } from '@expo/vector-icons';
 import {
   FlatList,
   Image,
@@ -14,16 +15,20 @@ import SmallMarker from '@/components/SmallMarker';
 
 export default function SearchTab() {
   const [visits, setVisits] = useState<any[]>([]);
+  const [dayLikes, setDayLikes] = useState<Record<string, number>>({});
   const [query, setQuery] = useState('');
 
   useEffect(() => {
     fetchRandomVisits();
+    fetchDayLikes();
   }, []);
 
   const fetchRandomVisits = async () => {
     const { data } = await supabase
       .from('visits')
-      .select('id, photo_url, user_id, latitude, longitude, profiles(name)')
+      .select(
+        'id, photo_url, user_id, latitude, longitude, created_at, country, profiles(name)'
+      )
       .limit(40);
 
     if (data) {
@@ -32,8 +37,23 @@ export default function SearchTab() {
         shuffled.map((v) => ({
           ...v,
           username: v.profiles?.name ?? 'Alguien',
+          visitDayId: `${v.user_id}_${new Date(v.created_at).toISOString().slice(0, 10)}`,
         }))
       );
+    }
+  };
+
+  const fetchDayLikes = async () => {
+    const { data, error } = await supabase
+      .from('visit_day_likes')
+      .select('visit_day_id');
+
+    if (!error && data) {
+      const counts: Record<string, number> = {};
+      data.forEach((like) => {
+        counts[like.visit_day_id] = (counts[like.visit_day_id] || 0) + 1;
+      });
+      setDayLikes(counts);
     }
   };
 
@@ -42,7 +62,16 @@ export default function SearchTab() {
       <View style={styles.imageWrapper}>
         <Image source={{ uri: item.photo_url }} style={styles.image} />
         <View style={styles.usernameOverlay}>
-          <Text style={styles.username}>{item.username}</Text>
+          <View style={styles.usernameRow}>
+            <Text style={styles.username}>{item.username}</Text>
+            {item.country && (
+              <Text style={styles.flag}>{countryCodeToEmoji(item.country)}</Text>
+            )}
+          </View>
+        </View>
+        <View style={styles.likesOverlay}>
+          <FontAwesome name="heart-o" size={12} color="#fff" />
+          <Text style={styles.likesText}>{dayLikes[item.visitDayId] ?? 0}</Text>
         </View>
         {item.latitude && item.longitude && (
           <MapView
@@ -68,6 +97,11 @@ export default function SearchTab() {
       </View>
     </View>
   );
+
+  const countryCodeToEmoji = (cc: string) =>
+    cc
+      .toUpperCase()
+      .replace(/./g, (c) => String.fromCodePoint(127397 + c.charCodeAt(0)));
 
   return (
     <SafeAreaView style={styles.container}>
@@ -124,7 +158,32 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     borderRadius: 4,
   },
+  usernameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
   username: {
+    color: '#fff',
+    fontSize: 12,
+  },
+  flag: {
+    color: '#fff',
+    fontSize: 12,
+  },
+  likesOverlay: {
+    position: 'absolute',
+    bottom: 8,
+    left: 8,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  likesText: {
     color: '#fff',
     fontSize: 12,
   },
