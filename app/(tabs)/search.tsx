@@ -5,10 +5,10 @@ import {
   Image,
   SafeAreaView,
   StyleSheet,
-  Text,
   TextInput,
   View,
 } from 'react-native';
+import MapView, { Marker } from 'react-native-maps';
 
 export default function SearchTab() {
   const [visits, setVisits] = useState<any[]>([]);
@@ -21,7 +21,7 @@ export default function SearchTab() {
   const fetchRandomVisits = async () => {
     const { data } = await supabase
       .from('visits')
-      .select('id, photo_url, user_id, profiles(name)')
+      .select('id, photo_url, user_id, latitude, longitude, profiles(name)')
       .limit(40);
 
     if (data) {
@@ -37,8 +37,30 @@ export default function SearchTab() {
 
   const renderItem = ({ item }: { item: any }) => (
     <View style={styles.item}>
-      <Image source={{ uri: item.photo_url }} style={styles.image} />
-      <Text style={styles.name}>{item.username}</Text>
+      <View style={styles.imageWrapper}>
+        <Image source={{ uri: item.photo_url }} style={styles.image} />
+        {item.latitude && item.longitude && (
+          <MapView
+            style={styles.mapOverlay}
+            initialRegion={{
+              latitude: item.latitude,
+              longitude: item.longitude,
+              latitudeDelta: 0.005,
+              longitudeDelta: 0.005,
+            }}
+            scrollEnabled={false}
+            zoomEnabled={false}
+            pitchEnabled={false}
+            rotateEnabled={false}
+            pointerEvents="none"
+            liteMode={true}
+          >
+            <Marker
+              coordinate={{ latitude: item.latitude, longitude: item.longitude }}
+            />
+          </MapView>
+        )}
+      </View>
     </View>
   );
 
@@ -80,13 +102,21 @@ const styles = StyleSheet.create({
     flex: 1,
     marginHorizontal: 4,
   },
+  imageWrapper: {
+    position: 'relative',
+  },
   image: {
     width: '100%',
     aspectRatio: 1,
     borderRadius: 8,
   },
-  name: {
-    marginTop: 4,
-    textAlign: 'center',
+  mapOverlay: {
+    position: 'absolute',
+    bottom: 8,
+    right: 8,
+    width: 60,
+    height: 60,
+    borderRadius: 8,
+    overflow: 'hidden',
   },
 });
