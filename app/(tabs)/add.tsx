@@ -18,7 +18,8 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import MapView, { Marker, Region } from 'react-native-maps';
+import MapView, { Region } from 'react-native-maps';
+import SmallMarker from '@/components/SmallMarker';
 
 
 export default function AddVisitScreen() {
@@ -220,7 +221,7 @@ export default function AddVisitScreen() {
           rotateEnabled={false}
           toolbarEnabled={false}
         >
-          <Marker coordinate={marker} />
+          <SmallMarker coordinate={marker} />
         </MapView>
       )}
 

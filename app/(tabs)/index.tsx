@@ -5,7 +5,8 @@ import { FontAwesome } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { Dimensions, FlatList, Image, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import MapView from 'react-native-maps';
+import SmallMarker from '@/components/SmallMarker';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const ITEM_WIDTH = SCREEN_WIDTH * 0.85;
@@ -287,7 +288,7 @@ function VisitMap({ visits }: { visits: any[] }) {
         liteMode={true}
       >
         {visits.map((v, i) => (
-          <Marker
+          <SmallMarker
             key={i}
             coordinate={{ latitude: v.latitude, longitude: v.longitude }}
             title={v.beach}

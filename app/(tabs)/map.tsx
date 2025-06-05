@@ -1,7 +1,8 @@
 import { supabase } from '@/lib/supabase';
 import { useEffect, useState } from 'react';
 import { Dimensions, Platform, StyleSheet, Text, View } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import MapView from 'react-native-maps';
+import SmallMarker from '@/components/SmallMarker';
 
 
 const BEACH_COORDINATES: Record<string, { latitude: number; longitude: number }> = {
@@ -67,7 +68,7 @@ export default function MapScreen() {
             }
 
             return (
-              <Marker
+              <SmallMarker
                 key={visit.id}
                 coordinate={coords}
                 title={`${visit.user.name} - ${visit.beach}`}
