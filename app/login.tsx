@@ -1,8 +1,15 @@
-import { ThemedText } from '@/components/ThemedText';
 import { supabase } from '@/lib/supabase';
 import { Link, router } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Button, SafeAreaView, StyleSheet, TextInput } from 'react-native';
+import {
+  Alert,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -17,47 +24,123 @@ export default function LoginScreen() {
     }
   };
 
-
   return (
     <SafeAreaView style={styles.container}>
-      <ThemedText type="title" style={styles.title}>
-        Bienvenido 👋
-      </ThemedText>
+      <View style={styles.container}>
+      <Text style={styles.heading}>Let's Sign you in</Text>
+      <Text style={styles.subheading}>Welcome Back,{"\n"}You have been missed</Text>
+
       <TextInput
         style={styles.input}
-        placeholder="Correo electrónico"
+        placeholder="Email, phone & username"
+        placeholderTextColor="#888"
         autoCapitalize="none"
-        keyboardType="email-address"
         value={email}
         onChangeText={setEmail}
       />
       <TextInput
         style={styles.input}
-        placeholder="Contraseña"
+        placeholder="Password"
+        placeholderTextColor="#888"
         secureTextEntry
         value={password}
         onChangeText={setPassword}
       />
-      <Button title="Iniciar sesión" onPress={handleLogin} />
+
+      <TouchableOpacity style={styles.forgotPassword}>
+        <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+        <Text style={styles.loginButtonText}>Sign in</Text>
+      </TouchableOpacity>
+
+      <View style={styles.orRow}>
+        <View style={styles.line} />
+        <Text style={styles.orText}>or</Text>
+        <View style={styles.line} />
+      </View>
+
       <Link href="/register" style={styles.registerLink}>
-        <ThemedText type="link">Crear cuenta</ThemedText>
+        <Text style={styles.registerText}>
+          Don’t have an account? <Text style={styles.registerNow}>Register Now</Text>
+        </Text>
       </Link>
+      </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 20 },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 24, textAlign: 'center' },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 6,
-    padding: 10,
+  container: {
+    flex: 1,
+    padding: 25,
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+  },
+  heading: {
+    fontSize: 32,
+    fontWeight: 'bold',
     marginBottom: 12,
   },
+  subheading: {
+    fontSize: 18,
+    color: '#333',
+    marginBottom: 32,
+  },
+  input: {
+    height: 56,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    marginBottom: 16,
+  },
+  forgotPassword: {
+    alignItems: 'flex-end',
+    marginBottom: 24,
+  },
+  forgotPasswordText: {
+    color: '#666',
+    fontSize: 14,
+  },
+  loginButton: {
+    backgroundColor: '#6C63FF',
+    borderRadius: 12,
+    paddingVertical: 16,
+    alignItems: 'center',
+    marginBottom: 32,
+  },
+  loginButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  orRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  line: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#ccc',
+  },
+  orText: {
+    marginHorizontal: 12,
+    color: '#666',
+  },
   registerLink: {
-    marginTop: 12,
     alignSelf: 'center',
   },
+  registerText: {
+    fontSize: 14,
+    color: '#666',
+  },
+  registerNow: {
+    color: '#3b82f6',
+    fontWeight: 'bold',
+  },
 });
+
