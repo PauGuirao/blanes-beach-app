@@ -60,10 +60,12 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="map"
+        name="search"
         options={{
-          title: 'Mapa',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="map.fill" color={color} />,
+          title: 'Buscar',
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="magnifyingglass" color={color} />
+          ),
         }}
       />
       <Tabs.Screen
@@ -78,15 +80,7 @@ export default function TabLayout() {
           tabBarLabel: () => null, // no mostrar texto
         }}
       />
-      <Tabs.Screen
-        name="search"
-        options={{
-          title: 'Buscar',
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="magnifyingglass" color={color} />
-          ),
-        }}
-      />
+    
       <Tabs.Screen
         name="ranking"
         options={{

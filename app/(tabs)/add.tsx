@@ -1,11 +1,12 @@
+import SmallMarker from '@/components/SmallMarker';
 import { supabase } from '@/lib/supabase';
+import { getClosestPointInfo } from '@/utils/testCoastDistance';
 import { Ionicons } from '@expo/vector-icons';
 import { CameraType, CameraView, useCameraPermissions } from 'expo-camera';
 import * as Crypto from 'expo-crypto';
 import * as ImageManipulator from 'expo-image-manipulator';
 import * as Location from 'expo-location';
 import { router, useNavigation } from 'expo-router';
-import { getClosestPointInfo } from '@/utils/testCoastDistance';
 import { useEffect, useRef, useState } from 'react';
 import {
   Alert, Button,
@@ -20,7 +21,6 @@ import {
   View,
 } from 'react-native';
 import MapView, { Region } from 'react-native-maps';
-import SmallMarker from '@/components/SmallMarker';
 
 
 export default function AddVisitScreen() {
@@ -57,12 +57,6 @@ export default function AddVisitScreen() {
 
       const location = await Location.getCurrentPositionAsync({});
       const { latitude, longitude } = location.coords;
-      const locInfo = await getCountryFromCoords(latitude, longitude);
-      if (locInfo) {
-        setCity(locInfo.city);
-        setCountryName(locInfo.country);
-        setIsoCountry(locInfo.isoCountryCode);
-      }
       setRegion({
         latitude,
         longitude,
@@ -70,6 +64,12 @@ export default function AddVisitScreen() {
         longitudeDelta: 0.01,
       });
       setMarker({ latitude, longitude });
+      const locInfo = await getCountryFromCoords(latitude, longitude);
+      if (locInfo) {
+        setCity(locInfo.city);
+        setCountryName(locInfo.country);
+        setIsoCountry(locInfo.isoCountryCode);
+      }
     })();
   }, []);
 
@@ -201,7 +201,7 @@ export default function AddVisitScreen() {
     }
 
     // Verificar cercanía al mar
-    const pointInfo = getClosestPointInfo(marker.latitude, marker.longitude);
+    const pointInfo = getClosestPointInfo(marker.latitude, marker.longitude,2000);
     if (!pointInfo?.isNear) {
       Alert.alert(
         '🌊 Lejos del mar',
