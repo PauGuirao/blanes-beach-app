@@ -1,14 +1,15 @@
 import { supabase } from '@/lib/supabase';
 import { FontAwesome } from '@expo/vector-icons';
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View, Pressable } from 'react-native';
 import MapView from 'react-native-maps';
 import SmallMarker from '@/components/SmallMarker';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 export default function VisitModal() {
   const { visitId } = useLocalSearchParams<{ visitId: string }>();
+  const router = useRouter();
   const [visit, setVisit] = useState<any | null>(null);
   const [likes, setLikes] = useState(0);
 
@@ -66,7 +67,7 @@ export default function VisitModal() {
   if (!visit) {
     return (
       <View style={styles.loadingContainer}>
-        <Stack.Screen options={{ title: 'Visita', presentation: 'modal' }} />
+        <Stack.Screen options={{ title: 'Visita', presentation: 'fullScreenModal' }} />
         <Text>Cargando...</Text>
       </View>
     );
@@ -76,8 +77,7 @@ export default function VisitModal() {
     <View style={styles.container}>
       <Stack.Screen
         options={{
-          title: visit.username,
-          presentation: 'modal',
+          presentation: 'fullScreenModal',
           headerShown: false,
         }}
       />
@@ -105,15 +105,16 @@ export default function VisitModal() {
         </MapView>
       )}
 
-      <View style={styles.usernameOverlay}>
-        <Text style={styles.usernameText}>{visit.username}</Text>
-      </View>
+      <Pressable style={styles.backButton} onPress={() => router.back()}>
+        <FontAwesome name="chevron-left" size={24} color="white" />
+      </Pressable>
 
-      {visit.comment ? (
-        <View style={styles.commentOverlay}>
+      <View style={styles.userCommentContainer}>
+        <Text style={styles.usernameText}>{visit.username}</Text>
+        {visit.comment ? (
           <Text style={styles.commentText}>“{visit.comment}”</Text>
-        </View>
-      ) : null}
+        ) : null}
+      </View>
 
       <View style={styles.likesOverlay}>
         <FontAwesome name="heart" size={24} color="white" />
@@ -149,17 +150,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     overflow: 'hidden',
   },
-  usernameOverlay: {
-    position: 'absolute',
-    top: 20,
-    left: 20,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
   usernameText: { color: '#fff', fontSize: 16 },
-  commentOverlay: {
+  commentText: { color: '#fff', fontStyle: 'italic', fontSize: 16 },
+  userCommentContainer: {
     position: 'absolute',
     bottom: 20,
     left: 20,
@@ -169,5 +162,12 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     maxWidth: '70%',
   },
-  commentText: { color: '#fff', fontStyle: 'italic', fontSize: 16 },
+  backButton: {
+    position: 'absolute',
+    top: 20,
+    left: 20,
+    padding: 4,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    borderRadius: 20,
+  },
 });
