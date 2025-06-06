@@ -1,11 +1,11 @@
+import SmallMarker from '@/components/SmallMarker';
 import { supabase } from '@/lib/supabase';
 import { FontAwesome } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Image, StyleSheet, Text, View, Pressable } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Gesture } from 'react-native-gesture-handler';
 import MapView from 'react-native-maps';
-import SmallMarker from '@/components/SmallMarker';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 export default function VisitModal() {
   const { visitId } = useLocalSearchParams<{ visitId: string }>();
@@ -81,9 +81,7 @@ export default function VisitModal() {
           headerShown: false,
         }}
       />
-      <GestureDetector gesture={doubleTap}>
-        <Image source={{ uri: visit.photo_url }} style={styles.image} />
-      </GestureDetector>
+      <Image source={{ uri: visit.photo_url }} style={styles.image} />
 
       {visit.latitude && visit.longitude && (
         <MapView
