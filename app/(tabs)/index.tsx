@@ -1,4 +1,5 @@
 // app/tabs/index.tsx
+import SmallMarker from '@/components/SmallMarker';
 import { supabase } from '@/lib/supabase';
 import { getClosestPointInfo } from '@/utils/testCoastDistance';
 import { FontAwesome } from '@expo/vector-icons';
@@ -6,7 +7,6 @@ import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { Dimensions, FlatList, Image, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import MapView from 'react-native-maps';
-import SmallMarker from '@/components/SmallMarker';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const ITEM_WIDTH = SCREEN_WIDTH * 0.85;
@@ -24,7 +24,6 @@ export default function HomeTab() {
     if (result) {
       console.log(result.isNear ? '✅ Cerca del mar' : '❌ Lejos del mar');
     }
-  
     fetchVisits();
     fetchDayLikes();
     fetchDayComments();

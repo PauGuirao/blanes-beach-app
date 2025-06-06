@@ -1,14 +1,21 @@
 import { supabase } from '@/lib/supabase';
+import { FontAwesome } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { View, Image, StyleSheet, Text } from 'react-native';
-import { FontAwesome } from '@expo/vector-icons';
-import { TapGestureHandler } from 'react-native-gesture-handler';
+import { Image, StyleSheet, Text, View } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 export default function VisitModal() {
   const { visitId } = useLocalSearchParams<{ visitId: string }>();
   const [visit, setVisit] = useState<any | null>(null);
   const [likes, setLikes] = useState(0);
+
+  const doubleTap = Gesture.Tap()
+  .numberOfTaps(2)
+  .onEnd(() => {
+    likeVisitDay();
+  });
+
 
   useEffect(() => {
     fetchVisit();
@@ -66,9 +73,9 @@ export default function VisitModal() {
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ title: visit.username, presentation: 'modal' }} />
-      <TapGestureHandler numberOfTaps={2} onActivated={likeVisitDay}>
+      <GestureDetector gesture={doubleTap}>
         <Image source={{ uri: visit.photo_url }} style={styles.image} />
-      </TapGestureHandler>
+      </GestureDetector>
       <View style={styles.likesOverlay}>
         <FontAwesome name="heart" size={24} color="white" />
         <Text style={styles.likesText}>{likes}</Text>
