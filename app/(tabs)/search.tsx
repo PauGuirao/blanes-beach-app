@@ -19,6 +19,7 @@ export default function SearchTab() {
   const [visits, setVisits] = useState<any[]>([]);
   const [dayLikes, setDayLikes] = useState<Record<string, number>>({});
   const [query, setQuery] = useState('');
+  const [users, setUsers] = useState<any[]>([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -60,7 +61,25 @@ export default function SearchTab() {
     }
   };
 
-  const renderItem = ({ item }: { item: any }) => (
+  // Buscar usuarios con un pequeño retardo (debounce)
+  useEffect(() => {
+    const handler = setTimeout(async () => {
+      if (!query.trim()) {
+        setUsers([]);
+        return;
+      }
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, name, photo_url')
+        .ilike('name', `%${query}%`)
+        .limit(10);
+      if (!error) setUsers(data ?? []);
+    }, 300);
+
+    return () => clearTimeout(handler);
+  }, [query]);
+
+  const renderVisit = ({ item }: { item: any }) => (
     <Pressable style={styles.item} onPress={() => router.push(`/visit/${item.id}`)}>
       <View style={styles.imageWrapper}>
         <Image source={{ uri: item.photo_url }} style={styles.image} />
@@ -101,6 +120,23 @@ export default function SearchTab() {
     </Pressable>
   );
 
+  const renderUser = ({ item }: { item: any }) => (
+    <Pressable
+      style={styles.userRow}
+      onPress={() => router.push(`/user/${item.id}`)}
+    >
+      <Image
+        source={
+          item.photo_url
+            ? { uri: item.photo_url }
+            : require('@/assets/images/default-avatar.png')
+        }
+        style={styles.userAvatar}
+      />
+      <Text style={styles.userName}>{item.name}</Text>
+    </Pressable>
+  );
+
   const countryCodeToEmoji = (cc: string) =>
     cc
       .toUpperCase()
@@ -109,19 +145,30 @@ export default function SearchTab() {
   return (
     <SafeAreaView style={styles.container}>
       <TextInput
-        placeholder="Buscar"
+        placeholder="Buscar usuarios"
         value={query}
         onChangeText={setQuery}
         style={styles.search}
       />
-      <FlatList
-        data={visits}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={renderItem}
-        numColumns={2}
-        columnWrapperStyle={styles.row}
-        showsVerticalScrollIndicator={false}
-      />
+      {query ? (
+        <FlatList
+          data={users}
+          keyExtractor={(item) => item.id}
+          renderItem={renderUser}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        />
+      ) : (
+        <FlatList
+          data={visits}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderVisit}
+          numColumns={2}
+          columnWrapperStyle={styles.row}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
     </SafeAreaView>
   );
 }
@@ -198,5 +245,24 @@ const styles = StyleSheet.create({
     height: 60,
     borderRadius: 8,
     overflow: 'hidden',
+  },
+  userRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  userAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 12,
+    backgroundColor: '#ccc',
+  },
+  userName: {
+    fontSize: 16,
+  },
+  separator: {
+    height: 1,
+    backgroundColor: '#eee',
   },
 });
