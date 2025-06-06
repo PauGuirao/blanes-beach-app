@@ -208,7 +208,11 @@ export default function HomeTab() {
                     <View style={[styles.visitPreview, { width: ITEM_WIDTH, marginRight: SPACING }]}>
                       <Image source={{ uri: v.photo_url }} style={styles.visitImage} />
                       <View style={styles.infoOverlay}>
-                        <Text style={styles.visitBeach}>{v.beach}</Text>
+                        <Text style={styles.visitBeach}>
+                          {v.city && v.countryLarge
+                            ? `${v.city}, ${v.countryLarge}`
+                            : v.beach}
+                        </Text>
                         {v.comment ? <Text style={styles.visitComment}>“{v.comment}”</Text> : null}
                       </View>
                     </View>

@@ -33,7 +33,7 @@ export default function AddVisitScreen() {
   const navigation = useNavigation();
   const [photoTaken, setPhotoTaken] = useState(false);
   const [city, setCity] = useState<string | null>(null);
-  const [countryName, setCountryName] = useState<string | null>(null);
+  const [countryLarge, setCountryLarge] = useState<string | null>(null);
   const [isoCountry, setIsoCountry] = useState<string | null>(null);
   const cameraRef = useRef<CameraView>(null);
 
@@ -67,7 +67,7 @@ export default function AddVisitScreen() {
       const locInfo = await getCountryFromCoords(latitude, longitude);
       if (locInfo) {
         setCity(locInfo.city);
-        setCountryName(locInfo.country);
+        setCountryLarge(locInfo.country);
         setIsoCountry(locInfo.isoCountryCode);
       }
     })();
@@ -222,6 +222,8 @@ export default function AddVisitScreen() {
         latitude: marker.latitude,
         longitude: marker.longitude,
         country: isoCountry,
+        city,
+        countryLarge,
       },
     ]);
 
