@@ -35,6 +35,12 @@ export default function AddVisitScreen() {
   const [country, setCountry] = useState<string | null>(null);
   const cameraRef = useRef<CameraView>(null);
 
+  const resetCapture = () => {
+    setComment('');
+    setImage(null);
+    setPhotoTaken(false);
+  };
+
   useEffect(() => {
     navigation.setOptions({ tabBarStyle: { display: 'none' } });
   }, []);
@@ -171,6 +177,7 @@ export default function AddVisitScreen() {
           '⏳ Espera un poco',
           'Acabas de llegar a la playa, ¡disfruta un poco de ella!'
         );
+        resetCapture();
         return;
       }
     }
@@ -182,6 +189,7 @@ export default function AddVisitScreen() {
         '🌊 Lejos del mar',
         'Parece que no estás cerca del mar, tienes que estar cerca para disfrutar del mar y publicar en la app.'
       );
+      resetCapture();
       return;
     }
 
