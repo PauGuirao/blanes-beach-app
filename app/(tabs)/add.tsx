@@ -5,6 +5,7 @@ import * as Crypto from 'expo-crypto';
 import * as ImageManipulator from 'expo-image-manipulator';
 import * as Location from 'expo-location';
 import { router, useNavigation } from 'expo-router';
+import { getClosestPointInfo } from '@/utils/testCoastDistance';
 import { useEffect, useRef, useState } from 'react';
 import {
   Alert, Button,
@@ -148,6 +149,39 @@ export default function AddVisitScreen() {
     const user = session?.user;
     if (!user || !marker) {
       Alert.alert('Error', 'Faltan datos para guardar la visita');
+      return;
+    }
+
+    // Verificar tiempo transcurrido desde la última visita
+    const { data: lastVisits } = await supabase
+      .from('visits')
+      .select('created_at')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    const lastVisitDate = lastVisits?.[0]?.created_at
+      ? new Date(lastVisits[0].created_at)
+      : null;
+
+    if (lastVisitDate) {
+      const diffMinutes = (Date.now() - lastVisitDate.getTime()) / 1000 / 60;
+      if (diffMinutes < 10) {
+        Alert.alert(
+          '⏳ Espera un poco',
+          'Acabas de llegar a la playa, ¡disfruta un poco de ella!'
+        );
+        return;
+      }
+    }
+
+    // Verificar cercanía al mar
+    const pointInfo = getClosestPointInfo(marker.latitude, marker.longitude);
+    if (!pointInfo?.isNear) {
+      Alert.alert(
+        '🌊 Lejos del mar',
+        'Parece que no estás cerca del mar, tienes que estar cerca para disfrutar del mar y publicar en la app.'
+      );
       return;
     }
 
