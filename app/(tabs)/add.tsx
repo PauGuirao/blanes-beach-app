@@ -32,7 +32,9 @@ export default function AddVisitScreen() {
   const [facing, setFacing] = useState<CameraType>('back');
   const navigation = useNavigation();
   const [photoTaken, setPhotoTaken] = useState(false);
-  const [country, setCountry] = useState<string | null>(null);
+  const [city, setCity] = useState<string | null>(null);
+  const [countryName, setCountryName] = useState<string | null>(null);
+  const [isoCountry, setIsoCountry] = useState<string | null>(null);
   const cameraRef = useRef<CameraView>(null);
 
   const resetCapture = () => {
@@ -55,7 +57,12 @@ export default function AddVisitScreen() {
 
       const location = await Location.getCurrentPositionAsync({});
       const { latitude, longitude } = location.coords;
-      //const country = await getCountryFromCoords(latitude, longitude);
+      const locInfo = await getCountryFromCoords(latitude, longitude);
+      if (locInfo) {
+        setCity(locInfo.city);
+        setCountryName(locInfo.country);
+        setIsoCountry(locInfo.isoCountryCode);
+      }
       setRegion({
         latitude,
         longitude,
@@ -63,7 +70,6 @@ export default function AddVisitScreen() {
         longitudeDelta: 0.01,
       });
       setMarker({ latitude, longitude });
-      //setCountry(country);
     })();
   }, []);
 
@@ -85,10 +91,22 @@ export default function AddVisitScreen() {
     setFacing(current => (current === 'back' ? 'front' : 'back'));
   }
 
-  const getCountryFromCoords = async (latitude: number, longitude: number): Promise<string | null> => {
+  const getCountryFromCoords = async (
+    latitude: number,
+    longitude: number
+  ): Promise<{
+    city: string | null;
+    country: string | null;
+    isoCountryCode: string | null;
+  } | null> => {
     try {
       const result = await Location.reverseGeocodeAsync({ latitude, longitude });
-      return result[0]?.country ?? null;
+      const info = result[0];
+      return {
+        city: info?.city ?? null,
+        country: info?.country ?? null,
+        isoCountryCode: info?.isoCountryCode ?? null,
+      };
     } catch (error) {
       console.error('Error al obtener el país:', error);
       return null;
@@ -203,7 +221,7 @@ export default function AddVisitScreen() {
         photo_url: photoUrl,
         latitude: marker.latitude,
         longitude: marker.longitude,
-        country: 'ES',
+        country: isoCountry,
       },
     ]);
 
