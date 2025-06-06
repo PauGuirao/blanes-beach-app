@@ -3,6 +3,8 @@ import { FontAwesome } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
+import MapView from 'react-native-maps';
+import SmallMarker from '@/components/SmallMarker';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 export default function VisitModal() {
@@ -72,10 +74,47 @@ export default function VisitModal() {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ title: visit.username, presentation: 'modal' }} />
+      <Stack.Screen
+        options={{
+          title: visit.username,
+          presentation: 'modal',
+          headerShown: false,
+        }}
+      />
       <GestureDetector gesture={doubleTap}>
         <Image source={{ uri: visit.photo_url }} style={styles.image} />
       </GestureDetector>
+
+      {visit.latitude && visit.longitude && (
+        <MapView
+          style={styles.mapOverlay}
+          initialRegion={{
+            latitude: visit.latitude,
+            longitude: visit.longitude,
+            latitudeDelta: 0.005,
+            longitudeDelta: 0.005,
+          }}
+          scrollEnabled={false}
+          zoomEnabled={false}
+          pitchEnabled={false}
+          rotateEnabled={false}
+          pointerEvents="none"
+          liteMode={true}
+        >
+          <SmallMarker coordinate={{ latitude: visit.latitude, longitude: visit.longitude }} />
+        </MapView>
+      )}
+
+      <View style={styles.usernameOverlay}>
+        <Text style={styles.usernameText}>{visit.username}</Text>
+      </View>
+
+      {visit.comment ? (
+        <View style={styles.commentOverlay}>
+          <Text style={styles.commentText}>“{visit.comment}”</Text>
+        </View>
+      ) : null}
+
       <View style={styles.likesOverlay}>
         <FontAwesome name="heart" size={24} color="white" />
         <Text style={styles.likesText}>{likes}</Text>
@@ -87,11 +126,11 @@ export default function VisitModal() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#000' },
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  image: { flex: 1, resizeMode: 'contain' },
+  image: { flex: 1, resizeMode: 'cover' },
   likesOverlay: {
     position: 'absolute',
-    bottom: 40,
-    left: 20,
+    bottom: 20,
+    right: 20,
     backgroundColor: 'rgba(0,0,0,0.6)',
     paddingHorizontal: 8,
     paddingVertical: 4,
@@ -101,4 +140,34 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   likesText: { color: '#fff', fontSize: 16 },
+  mapOverlay: {
+    position: 'absolute',
+    top: 20,
+    right: 20,
+    width: 100,
+    height: 100,
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  usernameOverlay: {
+    position: 'absolute',
+    top: 20,
+    left: 20,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  usernameText: { color: '#fff', fontSize: 16 },
+  commentOverlay: {
+    position: 'absolute',
+    bottom: 20,
+    left: 20,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    maxWidth: '70%',
+  },
+  commentText: { color: '#fff', fontStyle: 'italic', fontSize: 16 },
 });
