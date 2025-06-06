@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase';
 import { getClosestPointInfo } from '@/utils/testCoastDistance';
 import { FontAwesome } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { Dimensions, FlatList, Image, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import MapView from 'react-native-maps';
 
@@ -261,9 +261,11 @@ function formatDate(date: Date): string {
 function VisitMap({ visits }: { visits: any[] }) {
   const mapRef = useRef<MapView>(null);
 
+  const uniqueVisits = useMemo(() => mergeCloseVisits(visits), [visits]);
+
   useEffect(() => {
-    if (mapRef.current && visits.length > 0) {
-      const coords = visits.map((v) => ({
+    if (mapRef.current && uniqueVisits.length > 0) {
+      const coords = uniqueVisits.map((v) => ({
         latitude: v.latitude,
         longitude: v.longitude,
       }));
@@ -273,7 +275,7 @@ function VisitMap({ visits }: { visits: any[] }) {
         animated: false,
       });
     }
-  }, [visits]);
+  }, [uniqueVisits]);
 
   return (
     <View style={{ width: ITEM_WIDTH, marginRight: SPACING, borderRadius: 12, overflow: 'hidden' }}>
@@ -286,7 +288,7 @@ function VisitMap({ visits }: { visits: any[] }) {
         rotateEnabled={false}
         liteMode={true}
       >
-        {visits.map((v, i) => (
+        {uniqueVisits.map((v, i) => (
           <SmallMarker
             key={i}
             coordinate={{ latitude: v.latitude, longitude: v.longitude }}
@@ -296,6 +298,39 @@ function VisitMap({ visits }: { visits: any[] }) {
       </MapView>
     </View>
   );
+}
+
+function mergeCloseVisits(visits: any[], maxDistance = 50) {
+  const result: any[] = [];
+
+  for (const v of visits) {
+    const found = result.find((u) =>
+      distanceMeters(u.latitude, u.longitude, v.latitude, v.longitude) < maxDistance
+    );
+
+    if (!found) {
+      result.push(v);
+    }
+  }
+
+  return result;
+}
+
+function distanceMeters(lat1: number, lon1: number, lat2: number, lon2: number) {
+  const toRad = (v: number) => (v * Math.PI) / 180;
+  const R = 6371000; // Earth radius in meters
+
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) *
+      Math.cos(toRad(lat2)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
 }
 
 
