@@ -1,19 +1,19 @@
+import SmallMarker from '@/components/SmallMarker';
 import { supabase } from '@/lib/supabase';
-import { useEffect, useState } from 'react';
-import { useRouter } from 'expo-router';
 import { FontAwesome } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
 import {
   FlatList,
   Image,
-  Text,
   Pressable,
   SafeAreaView,
   StyleSheet,
+  Text,
   TextInput,
   View,
 } from 'react-native';
 import MapView from 'react-native-maps';
-import SmallMarker from '@/components/SmallMarker';
 
 export default function SearchTab() {
   const [visits, setVisits] = useState<any[]>([]);
@@ -70,10 +70,13 @@ export default function SearchTab() {
       }
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, name, photo_url')
-        .ilike('name', `%${query}%`)
+        .select('id, name, username')
+        .ilike('username', `%${query.trim()}%`)
         .limit(10);
+
       if (!error) setUsers(data ?? []);
+      console.log('query:', query); // eslint-disable-line no-cons
+      console.log('users', data); // eslint-disable-line no-console
     }, 300);
 
     return () => clearTimeout(handler);
@@ -133,7 +136,7 @@ export default function SearchTab() {
         }
         style={styles.userAvatar}
       />
-      <Text style={styles.userName}>{item.name}</Text>
+      <Text style={styles.userName}>{item.username}</Text>
     </Pressable>
   );
 
@@ -152,6 +155,7 @@ export default function SearchTab() {
       />
       {query ? (
         <FlatList
+          key="users"
           data={users}
           keyExtractor={(item) => item.id}
           renderItem={renderUser}
@@ -161,6 +165,7 @@ export default function SearchTab() {
         />
       ) : (
         <FlatList
+          key="visits"
           data={visits}
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderVisit}
