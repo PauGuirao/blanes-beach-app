@@ -1,10 +1,12 @@
 import { supabase } from '@/lib/supabase';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'expo-router';
 import { FontAwesome } from '@expo/vector-icons';
 import {
   FlatList,
   Image,
   Text,
+  Pressable,
   SafeAreaView,
   StyleSheet,
   TextInput,
@@ -17,6 +19,7 @@ export default function SearchTab() {
   const [visits, setVisits] = useState<any[]>([]);
   const [dayLikes, setDayLikes] = useState<Record<string, number>>({});
   const [query, setQuery] = useState('');
+  const router = useRouter();
 
   useEffect(() => {
     fetchRandomVisits();
@@ -58,7 +61,7 @@ export default function SearchTab() {
   };
 
   const renderItem = ({ item }: { item: any }) => (
-    <View style={styles.item}>
+    <Pressable style={styles.item} onPress={() => router.push(`/visit/${item.id}`)}>
       <View style={styles.imageWrapper}>
         <Image source={{ uri: item.photo_url }} style={styles.image} />
         <View style={styles.usernameOverlay}>
@@ -95,7 +98,7 @@ export default function SearchTab() {
           </MapView>
         )}
       </View>
-    </View>
+    </Pressable>
   );
 
   const countryCodeToEmoji = (cc: string) =>
