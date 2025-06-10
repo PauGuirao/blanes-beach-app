@@ -201,7 +201,7 @@ export default function AddVisitScreen() {
     }
 
     // Verificar cercanía al mar
-    const pointInfo = getClosestPointInfo(marker.latitude, marker.longitude,2000);
+    const pointInfo = getClosestPointInfo(marker.latitude, marker.longitude,20000000);
     if (!pointInfo?.isNear) {
       Alert.alert(
         '🌊 Lejos del mar',

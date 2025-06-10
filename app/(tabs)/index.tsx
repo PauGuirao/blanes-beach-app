@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase';
 import { getClosestPointInfo } from '@/utils/testCoastDistance';
 import { FontAwesome } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { useEffect, useRef, useState, useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Dimensions, FlatList, Image, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import MapView from 'react-native-maps';
 
@@ -224,9 +224,9 @@ export default function HomeTab() {
               <View style={styles.actionsRow}>
                 <View style={styles.actionButton}>
                   <FontAwesome
-                    name={'heart'}
-                    size={24}
-                    color={'red'}
+                    name={'heart-o'}
+                    size={25}
+                    color={'black'}
                     onPress={() => likeVisitDay(visitDayId)}
                   />
                   <Text style={styles.actionCount}>{dayLikes[visitDayId] ?? 0}</Text>
@@ -235,7 +235,7 @@ export default function HomeTab() {
                 <View style={styles.actionButton}>
                   <FontAwesome
                     name="comment-o"
-                    size={24}
+                    size={25}
                     color="black"
                     onPress={() => router.push(`/comment/${visitDayId}`)}
                   />
