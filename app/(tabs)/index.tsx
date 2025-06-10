@@ -5,7 +5,18 @@ import { getClosestPointInfo } from '@/utils/testCoastDistance';
 import { FontAwesome } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Dimensions, FlatList, Image, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import {
+  Dimensions,
+  FlatList,
+  Image,
+  Pressable,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  View,
+  Modal,
+  TextInput,
+} from 'react-native';
 import MapView from 'react-native-maps';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -16,6 +27,9 @@ export default function HomeTab() {
   const [visits, setVisits] = useState<any[]>([]);
   const [dayLikes, setDayLikes] = useState<Record<string, number>>({});
   const [dayCommentsCount, setDayCommentsCount] = useState<Record<string, number>>({});
+  const [reportVisible, setReportVisible] = useState(false);
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
+  const [reportReason, setReportReason] = useState('');
 
   useEffect(() => {
     const lat = 41.7253;
@@ -123,8 +137,30 @@ export default function HomeTab() {
     await supabase
       .from('visit_day_likes')
       .insert({ user_id: user.id, visit_day_id: visitDayId });
-  
+
     fetchDayLikes();
+  };
+
+  const openReportModal = (postId: string) => {
+    setSelectedPostId(postId);
+    setReportReason('');
+    setReportVisible(true);
+  };
+
+  const closeReportModal = () => setReportVisible(false);
+
+  const submitReport = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    const user = session?.user;
+    if (!user || !selectedPostId) return;
+
+    await supabase.from('reports').insert({
+      reported_by: user.id,
+      post_id: selectedPostId,
+      reason: reportReason,
+      status: 'pending',
+    });
+    closeReportModal();
   };
 
   function getGroupedVisits(visits: any[]) {
@@ -173,6 +209,12 @@ export default function HomeTab() {
           const visitsWithMap = [...item.visits, { type: 'map' }];
           return (
             <View style={styles.card}>
+              <Pressable
+                style={styles.moreButton}
+                onPress={() => openReportModal(visitDayId)}
+              >
+                <FontAwesome name="ellipsis-v" size={20} color="black" />
+              </Pressable>
               <Pressable
                 onPress={() => router.push(`/user/${item.user_id}`)}
                 style={styles.headerRow}
@@ -246,6 +288,27 @@ export default function HomeTab() {
           );
         }}
       />
+      <Modal
+        visible={reportVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={closeReportModal}
+      >
+        <Pressable style={styles.modalOverlay} onPress={closeReportModal}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Denunciar publicación</Text>
+            <TextInput
+              style={styles.modalInput}
+              value={reportReason}
+              onChangeText={setReportReason}
+              placeholder="Motivo"
+            />
+            <Pressable style={styles.modalButton} onPress={submitReport}>
+              <Text style={styles.modalButtonText}>Enviar</Text>
+            </Pressable>
+          </View>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -348,7 +411,13 @@ const styles = StyleSheet.create({
     paddingVertical:8,
     paddingHorizontal:22
   },
-  card: { marginBottom: 12, padding: 12, borderRadius: 0, paddingRight:0 },
+  card: {
+    marginBottom: 12,
+    padding: 12,
+    borderRadius: 0,
+    paddingRight: 0,
+    position: 'relative',
+  },
   beach: { fontWeight: 'bold', fontSize: 16 },
   date: { fontSize: 12, color: '#555' },
   feedTitle: {
@@ -460,4 +529,33 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#333',
   },
+  moreButton: {
+    position: 'absolute',
+    right: 8,
+    top: 8,
+    padding: 4,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    padding: 20,
+    width: '80%',
+    borderRadius: 12,
+  },
+  modalTitle: { fontSize: 16, fontWeight: '600', marginBottom: 12 },
+  modalInput: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginBottom: 12,
+  },
+  modalButton: { backgroundColor: '#007bff', padding: 10, borderRadius: 8 },
+  modalButtonText: { color: '#fff', textAlign: 'center', fontWeight: '600' },
 });
