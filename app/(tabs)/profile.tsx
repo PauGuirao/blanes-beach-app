@@ -1,14 +1,21 @@
 import { supabase } from '@/lib/supabase';
 import { useEffect, useState } from 'react';
-import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import MapView from 'react-native-maps';
 import SmallMarker from '@/components/SmallMarker';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 
 export default function ProfileScreen() {
   const [name, setName] = useState('');
   const [visits, setVisits] = useState<any[]>([]);
   const [avatar, setAvatar] = useState<string | null>(null);
+  const [settingsVisible, setSettingsVisible] = useState(false);
+  const router = useRouter();
+
+  const openSettings = () => setSettingsVisible(true);
+  const closeSettings = () => setSettingsVisible(false);
 
   useEffect(() => {
     fetchProfileAndVisits();
@@ -35,6 +42,35 @@ export default function ProfileScreen() {
     setName(profile?.name ?? 'Usuario');
     setAvatar(profile?.photo_url ?? null);
     setVisits(userVisits ?? []);
+  };
+
+  const handleDeleteAccount = async () => {
+    Alert.alert(
+      'Eliminar cuenta',
+      '¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            const user = session?.user;
+            if (!user) return;
+
+            await supabase.from('profiles').delete().eq('id', user.id);
+            try {
+              // Este llamado requiere privilegios de servicio
+              await supabase.auth.admin.deleteUser(user.id);
+            } catch (e) {
+              console.error(e);
+            }
+            await supabase.auth.signOut();
+            router.replace('/login');
+          },
+        },
+      ]
+    );
   };
 
   const totalVisits = visits.length;
@@ -95,7 +131,10 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-       <ScrollView showsVerticalScrollIndicator={false}>
+      <Pressable style={styles.menuButton} onPress={openSettings}>
+        <Ionicons name="ellipsis-vertical" size={24} color="black" />
+      </Pressable>
+      <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.tiktokHeader}>
             <Image
               source={require('@/assets/images/default-avatar.png')}
@@ -198,7 +237,22 @@ export default function ProfileScreen() {
           </View>
         </View>
       </ScrollView>
-      
+
+      <Modal
+        visible={settingsVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={closeSettings}
+      >
+        <Pressable style={styles.modalOverlay} onPress={closeSettings}>
+          <View style={styles.modalContent}>
+            <Pressable style={styles.deleteButton} onPress={handleDeleteAccount}>
+              <Text style={styles.deleteText}>Eliminar cuenta</Text>
+            </Pressable>
+          </View>
+        </Pressable>
+      </Modal>
+
   </SafeAreaView>
 );
 }
@@ -339,5 +393,26 @@ const styles = StyleSheet.create({
   dayLabel: {
     marginTop: 4,
     fontSize: 12,
+  },
+  menuButton: {
+    alignSelf: 'flex-end',
+    marginBottom: 10,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    padding: 20,
+  },
+  deleteButton: {
+    paddingVertical: 12,
+  },
+  deleteText: {
+    color: 'red',
+    textAlign: 'center',
+    fontWeight: '600',
   },
 });
