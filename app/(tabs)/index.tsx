@@ -9,13 +9,13 @@ import {
   Dimensions,
   FlatList,
   Image,
+  Modal,
   Pressable,
   SafeAreaView,
   StyleSheet,
   Text,
-  View,
-  Modal,
   TextInput,
+  View,
 } from 'react-native';
 import MapView from 'react-native-maps';
 
@@ -154,12 +154,20 @@ export default function HomeTab() {
     const user = session?.user;
     if (!user || !selectedPostId) return;
 
-    await supabase.from('reports').insert({
+    console.log('Reporting post:', selectedPostId);
+    const { data, error } =  await supabase.from('reports').insert({
       reported_by: user.id,
-      post_id: selectedPostId,
+      post_day_id: selectedPostId,
       reason: reportReason,
-      status: 'pending',
     });
+    if (error) {
+      console.error('Supabase Insert Error:', error.message);
+      console.error('Details:', error.details);
+      console.error('Hint:', error.hint);
+      // You might want to update your UI to show this error to the user
+    } else {
+        console.log('Report successfully inserted:', data);
+    }
     closeReportModal();
   };
 
@@ -209,28 +217,29 @@ export default function HomeTab() {
           const visitsWithMap = [...item.visits, { type: 'map' }];
           return (
             <View style={styles.card}>
-              <Pressable
-                style={styles.moreButton}
-                onPress={() => openReportModal(visitDayId)}
-              >
-                <FontAwesome name="ellipsis-v" size={20} color="black" />
-              </Pressable>
-              <Pressable
-                onPress={() => router.push(`/user/${item.user_id}`)}
-                style={styles.headerRow}
-              >
-                <Image
-                  source={require('@/assets/images/default-avatar.png')}
-                  style={styles.avatar}
-                />
-                <View style={styles.headerTextContainer}>
-                  <Text style={styles.username}>{item.username}</Text>
-                  <Text style={styles.subtitle}>
-                    {formatDate(item.date)} — fue a {item.visits.length} playa{item.visits.length > 1 ? 's' : ''}
-                  </Text>
-                </View>
-              </Pressable>
-              
+              <View>
+                <Pressable
+                  onPress={() => router.push(`/user/${item.user_id}`)}
+                  style={styles.headerRow}
+                >
+                  <Image
+                    source={require('@/assets/images/default-avatar.png')}
+                    style={styles.avatar}
+                  />
+                  <View style={styles.headerTextContainer}>
+                    <Text style={styles.username}>{item.username}</Text>
+                    <Text style={styles.subtitle}>
+                      {formatDate(item.date)} — fue a {item.visits.length} playa{item.visits.length > 1 ? 's' : ''}
+                    </Text>
+                  </View>
+                </Pressable>
+                <Pressable
+                  style={styles.moreButton}
+                  onPress={() => openReportModal(visitDayId)}
+                >
+                  <FontAwesome name="ellipsis-v" size={20} color="black" />
+                </Pressable>
+              </View>
               <FlatList
                 data={visitsWithMap}
                 horizontal
@@ -531,7 +540,7 @@ const styles = StyleSheet.create({
   },
   moreButton: {
     position: 'absolute',
-    right: 8,
+    right: 40,
     top: 8,
     padding: 4,
   },
